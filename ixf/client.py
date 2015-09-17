@@ -5,6 +5,7 @@ import httplib
 import json
 import urllib
 import urlparse
+import ssl
 
 class IXFClient(object):
 
@@ -46,7 +47,11 @@ class IXFClient(object):
         send the request, return response obj
         """
         if not cxn:
-            cxn = httplib.HTTPSConnection(self.host, self.port, strict=True, timeout=self.timeout)
+	    ctxt = ssl.create_default_context()
+            if not self.validate_ssl:
+                ctxt.check_hostname = False
+                ctxt.verify_mode = ssl.CERT_NONE
+            cxn = httplib.HTTPSConnection(self.host, self.port, strict=True, timeout=self.timeout, context=ctxt)
 
         headers = {
                   "Accept": "application/json"
